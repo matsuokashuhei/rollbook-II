@@ -1,0 +1,27 @@
+{
+  "name": "backend",
+  "dockerComposeFile": ["../../compose.yml"],
+  "service": "backend",
+  "shutdownAction": "stopCompose",
+  "workspaceFolder": "/app/backend",
+  // "build": {
+  //     "dockerfile": "Dockerfile",
+  // },
+  // "features": {
+  //   "ghcr.io/devcontainers/features/common-utils:2": {
+  //     "configureZshAsDefaultShell": true
+  //   }
+  // },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "GitHub.copilot-nightly",
+        // "vadimcn.vscode-lldb",
+        "mutantdino.resourcemonitor",
+        "rust-lang.rust-analyzer",
+        "tamasfe.even-better-toml",
+        "serayuzgur.crates"
+      ]
+    }
+  }
+}
