@@ -1,0 +1,18 @@
+[package]
+name = "backend"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[workspace]
+members = [".", "api", "entity", "migration"]
+
+[dependencies]
+api = { path = "api" }
+entity = { path = "entity" }
+migration = { path = "migration" }
+
+[dependencies.sea-orm]
+version = "^0"
+features = ["runtime-tokio-native-tls", "sqlx-mysql"]
