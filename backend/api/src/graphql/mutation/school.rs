@@ -1,11 +1,19 @@
-use async_graphql::{InputObject, Object};
-use entity::async_graphql::{self, Context, Result};
-use entity::school;
+use async_graphql::{Context, InputObject, Object, Result};
+use entity::{async_graphql, school};
 use sea_orm::{ActiveValue, DatabaseConnection, EntityTrait};
 
 #[derive(InputObject)]
 pub struct CreateSchoolInput {
     pub name: String,
+}
+
+impl CreateSchoolInput {
+    fn into_active_model(self) -> school::ActiveModel {
+        school::ActiveModel {
+            name: ActiveValue::Set(self.name),
+            ..Default::default()
+        }
+    }
 }
 
 #[derive(Default)]
@@ -19,22 +27,13 @@ impl SchoolMutation {
         input: CreateSchoolInput,
     ) -> Result<school::Model> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
-        let active_model = school::ActiveModel {
-            id: ActiveValue::Set(0),
-            name: ActiveValue::Set(input.name),
-        };
-        let result = school::Entity::insert(active_model).exec(conn).await;
-        match result {
-            Ok(result) => {
-                let id = result.last_insert_id;
-                let school = school::Entity::find_by_id(id)
-                    .one(conn)
-                    .await
-                    .unwrap()
-                    .unwrap();
-                Ok(school)
-            }
-            Err(_) => Err(async_graphql::Error::new("Failed to create school")),
-        }
+        let result = school::Entity::insert(input.into_active_model())
+            .exec(conn)
+            .await?;
+        let school = school::Entity::find_by_id(result.last_insert_id)
+            .one(conn)
+            .await?
+            .unwrap();
+        Ok(school)
     }
 }
