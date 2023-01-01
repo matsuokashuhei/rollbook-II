@@ -1,6 +1,8 @@
 {
   "name": "backend",
-  "dockerComposeFile": ["../../compose.yml"],
+  "dockerComposeFile": [
+    "../../compose.yml"
+  ],
   "service": "backend",
   "shutdownAction": "stopCompose",
   "workspaceFolder": "/app/backend",
@@ -16,11 +18,13 @@
     "vscode": {
       "extensions": [
         "GitHub.copilot-nightly",
-        // "vadimcn.vscode-lldb",
-        "mutantdino.resourcemonitor",
+        "GitHub.vscode-pull-request-github",
+        "Gruntfuggly.todo-tree",
+        // "mutantdino.resourcemonitor",
         "rust-lang.rust-analyzer",
+        "serayuzgur.crates",
         "tamasfe.even-better-toml",
-        "serayuzgur.crates"
+        // "vadimcn.vscode-lldb",
       ],
       "settings": {
         "editor.formatOnSave": true
