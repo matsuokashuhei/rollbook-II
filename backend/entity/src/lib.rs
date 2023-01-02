@@ -1,3 +1,4 @@
+pub mod instructor;
 pub mod school;
 pub mod studio;
 pub mod time_slot;

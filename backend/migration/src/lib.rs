@@ -3,6 +3,7 @@ pub use sea_orm_migration::prelude::*;
 mod m20221231_055926_create_schools;
 mod m20230101_065739_create_studios;
 mod m20230102_073106_create_time_slots;
+mod m20230102_073704_create_instructors;
 
 pub struct Migrator;
 
@@ -13,6 +14,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20221231_055926_create_schools::Migration),
             Box::new(m20230101_065739_create_studios::Migration),
             Box::new(m20230102_073106_create_time_slots::Migration),
+            Box::new(m20230102_073704_create_instructors::Migration),
         ]
     }
 }
