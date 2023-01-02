@@ -1,3 +1,4 @@
+pub mod course;
 pub mod instructor;
 pub mod school;
 pub mod studio;

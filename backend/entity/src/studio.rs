@@ -3,12 +3,14 @@ use sea_orm::entity::prelude::*;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, SimpleObject)]
 #[sea_orm(table_name = "studios")]
-#[graphql(complex, name = "Studio")]
+#[graphql(name = "Studio", complex)]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
     pub name: String,
     pub school_id: i32,
+    pub created_at: ChronoDateTime,
+    pub updated_at: ChronoDateTime,
 }
 
 #[ComplexObject]
@@ -28,6 +30,10 @@ impl Model {
             .all(conn)
             .await?)
     }
+    async fn courses(&self, ctx: &Context<'_>) -> Result<Vec<super::course::Model>> {
+        let conn = ctx.data::<DatabaseConnection>().unwrap();
+        Ok(self.find_related(super::course::Entity).all(conn).await?)
+    }
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -44,6 +50,12 @@ pub enum Relation {
         to = "super::time_slot::Column::StudioId"
     )]
     TimeSlot,
+    #[sea_orm(
+        has_many = "super::course::Entity",
+        from = "Column::Id",
+        to = "super::course::Column::StudioId"
+    )]
+    Course,
 }
 
 impl Related<super::school::Entity> for Entity {
@@ -55,6 +67,12 @@ impl Related<super::school::Entity> for Entity {
 impl Related<super::time_slot::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::TimeSlot.def()
+    }
+}
+
+impl Related<super::course::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Course.def()
     }
 }
 
