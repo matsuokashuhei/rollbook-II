@@ -35,6 +35,16 @@ impl Model {
             .await?
             .unwrap())
     }
+    async fn course_schedules(
+        &self,
+        ctx: &Context<'_>,
+    ) -> Result<Vec<super::course_schedule::Model>> {
+        let conn = ctx.data::<DatabaseConnection>().unwrap();
+        Ok(self
+            .find_related(super::course_schedule::Entity)
+            .all(conn)
+            .await?)
+    }
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -51,6 +61,12 @@ pub enum Relation {
         to = "super::studio::Column::Id"
     )]
     Studio,
+    #[sea_orm(
+        has_many = "super::course_schedule::Entity",
+        from = "Column::Id",
+        to = "super::course_schedule::Column::CourseId"
+    )]
+    CourseSchedule,
 }
 
 impl Related<super::instructor::Entity> for Entity {
@@ -62,6 +78,12 @@ impl Related<super::instructor::Entity> for Entity {
 impl Related<super::studio::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Studio.def()
+    }
+}
+
+impl Related<super::course_schedule::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::CourseSchedule.def()
     }
 }
 

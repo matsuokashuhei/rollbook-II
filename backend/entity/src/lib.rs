@@ -1,4 +1,5 @@
 pub mod course;
+pub mod course_schedule;
 pub mod instructor;
 pub mod school;
 pub mod studio;
