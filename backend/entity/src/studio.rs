@@ -21,6 +21,13 @@ impl Model {
             .await?
             .unwrap())
     }
+    async fn time_slots(&self, ctx: &Context<'_>) -> Result<Vec<super::time_slot::Model>> {
+        let conn = ctx.data::<DatabaseConnection>().unwrap();
+        Ok(self
+            .find_related(super::time_slot::Entity)
+            .all(conn)
+            .await?)
+    }
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -31,11 +38,23 @@ pub enum Relation {
         to = "super::school::Column::Id"
     )]
     School,
+    #[sea_orm(
+        has_many = "super::time_slot::Entity",
+        from = "Column::Id",
+        to = "super::time_slot::Column::StudioId"
+    )]
+    TimeSlot,
 }
 
 impl Related<super::school::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::School.def()
+    }
+}
+
+impl Related<super::time_slot::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::TimeSlot.def()
     }
 }
 
