@@ -1,9 +1,9 @@
-use async_graphql::{ComplexObject, Context, Result, SimpleObject};
+use async_graphql::{ComplexObject, Context, InputObject, Result, SimpleObject};
 // use sea_orm::{
 //     entity::prelude::DeriveEntityModel, ActiveModelBehavior, DerivePrimaryKey, DeriveRelation,
 //     EntityTrait, EnumIter, PrimaryKeyTrait,
 // };
-use sea_orm::entity::prelude::*;
+use sea_orm::{entity::prelude::*, ActiveValue};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, SimpleObject)]
 #[sea_orm(table_name = "instructors")]
@@ -23,6 +23,24 @@ impl Model {
     async fn courses(&self, ctx: &Context<'_>) -> Result<Vec<super::course::Model>> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
         Ok(self.find_related(super::course::Entity).all(conn).await?)
+    }
+}
+
+#[derive(InputObject)]
+pub struct CreateInstructorInput {
+    pub name: String,
+    pub email: String,
+    pub phone_number: String,
+}
+
+impl From<CreateInstructorInput> for ActiveModel {
+    fn from(input: CreateInstructorInput) -> Self {
+        ActiveModel {
+            name: ActiveValue::Set(input.name),
+            email: ActiveValue::Set(input.email),
+            phone_number: ActiveValue::Set(input.phone_number),
+            ..Default::default()
+        }
     }
 }
 

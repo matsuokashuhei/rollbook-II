@@ -1,5 +1,5 @@
-use async_graphql::{ComplexObject, Context, Result, SimpleObject};
-use sea_orm::entity::prelude::*;
+use async_graphql::{ComplexObject, Context, InputObject, Result, SimpleObject};
+use sea_orm::{entity::prelude::*, ActiveValue};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, SimpleObject)]
 #[sea_orm(table_name = "studios")]
@@ -33,6 +33,22 @@ impl Model {
     async fn courses(&self, ctx: &Context<'_>) -> Result<Vec<super::course::Model>> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
         Ok(self.find_related(super::course::Entity).all(conn).await?)
+    }
+}
+
+#[derive(InputObject)]
+pub struct CreateStudioInput {
+    pub school_id: i32,
+    pub name: String,
+}
+
+impl From<CreateStudioInput> for ActiveModel {
+    fn from(input: CreateStudioInput) -> Self {
+        ActiveModel {
+            name: ActiveValue::Set(input.name),
+            school_id: ActiveValue::Set(input.school_id),
+            ..Default::default()
+        }
     }
 }
 
