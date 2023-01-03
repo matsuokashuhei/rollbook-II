@@ -26,9 +26,7 @@
         "tamasfe.even-better-toml",
         // "vadimcn.vscode-lldb",
       ],
-      "settings": {
-        "editor.formatOnSave": true
-      }
+      "settings": {}
     }
   }
 }

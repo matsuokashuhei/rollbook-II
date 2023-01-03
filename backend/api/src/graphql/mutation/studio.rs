@@ -1,22 +1,6 @@
-use async_graphql::{Context, InputObject, Object, Result};
+use async_graphql::{Context, Object, Result};
 use entity::{async_graphql, studio};
-use sea_orm::{ActiveValue, DatabaseConnection, EntityTrait};
-
-#[derive(InputObject)]
-pub struct CreateStudioInput {
-    pub school_id: i32,
-    pub name: String,
-}
-
-impl CreateStudioInput {
-    fn into_active_model(self) -> studio::ActiveModel {
-        studio::ActiveModel {
-            name: ActiveValue::Set(self.name),
-            school_id: ActiveValue::Set(self.school_id),
-            ..Default::default()
-        }
-    }
-}
+use sea_orm::{DatabaseConnection, EntityTrait};
 
 #[derive(Default)]
 pub struct StudioMutation;
@@ -26,10 +10,10 @@ impl StudioMutation {
     pub async fn create_studio(
         &self,
         ctx: &Context<'_>,
-        input: CreateStudioInput,
+        input: studio::CreateStudioInput,
     ) -> Result<studio::Model> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
-        let result = studio::Entity::insert(input.into_active_model())
+        let result = studio::Entity::insert(studio::ActiveModel::from(input))
             .exec(conn)
             .await?;
         let studio = studio::Entity::find_by_id(result.last_insert_id)

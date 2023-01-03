@@ -1,13 +1,15 @@
-use async_graphql::{ComplexObject, Context, Result, SimpleObject};
-use sea_orm::entity::prelude::*;
+use async_graphql::{ComplexObject, Context, InputObject, Result, SimpleObject};
+use sea_orm::{entity::prelude::*, ActiveValue};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, SimpleObject)]
 #[sea_orm(table_name = "schools")]
-#[graphql(complex, name = "School")]
+#[graphql(name = "School", complex)]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
     pub name: String,
+    pub created_at: ChronoDateTime,
+    pub updated_at: ChronoDateTime,
 }
 
 #[ComplexObject]
@@ -15,6 +17,20 @@ impl Model {
     async fn studios(&self, ctx: &Context<'_>) -> Result<Vec<super::studio::Model>> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
         Ok(self.find_related(super::studio::Entity).all(conn).await?)
+    }
+}
+
+#[derive(InputObject)]
+pub struct CreateSchoolInput {
+    pub name: String,
+}
+
+impl From<CreateSchoolInput> for ActiveModel {
+    fn from(input: CreateSchoolInput) -> Self {
+        ActiveModel {
+            name: ActiveValue::Set(input.name),
+            ..Default::default()
+        }
     }
 }
 

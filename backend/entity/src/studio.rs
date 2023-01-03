@@ -1,14 +1,16 @@
-use async_graphql::{ComplexObject, Context, Result, SimpleObject};
-use sea_orm::entity::prelude::*;
+use async_graphql::{ComplexObject, Context, InputObject, Result, SimpleObject};
+use sea_orm::{entity::prelude::*, ActiveValue};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, SimpleObject)]
 #[sea_orm(table_name = "studios")]
-#[graphql(complex, name = "Studio")]
+#[graphql(name = "Studio", complex)]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
     pub name: String,
     pub school_id: i32,
+    pub created_at: ChronoDateTime,
+    pub updated_at: ChronoDateTime,
 }
 
 #[ComplexObject]
@@ -21,6 +23,33 @@ impl Model {
             .await?
             .unwrap())
     }
+    async fn time_slots(&self, ctx: &Context<'_>) -> Result<Vec<super::time_slot::Model>> {
+        let conn = ctx.data::<DatabaseConnection>().unwrap();
+        Ok(self
+            .find_related(super::time_slot::Entity)
+            .all(conn)
+            .await?)
+    }
+    async fn courses(&self, ctx: &Context<'_>) -> Result<Vec<super::course::Model>> {
+        let conn = ctx.data::<DatabaseConnection>().unwrap();
+        Ok(self.find_related(super::course::Entity).all(conn).await?)
+    }
+}
+
+#[derive(InputObject)]
+pub struct CreateStudioInput {
+    pub school_id: i32,
+    pub name: String,
+}
+
+impl From<CreateStudioInput> for ActiveModel {
+    fn from(input: CreateStudioInput) -> Self {
+        ActiveModel {
+            name: ActiveValue::Set(input.name),
+            school_id: ActiveValue::Set(input.school_id),
+            ..Default::default()
+        }
+    }
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -31,11 +60,35 @@ pub enum Relation {
         to = "super::school::Column::Id"
     )]
     School,
+    #[sea_orm(
+        has_many = "super::time_slot::Entity",
+        from = "Column::Id",
+        to = "super::time_slot::Column::StudioId"
+    )]
+    TimeSlot,
+    #[sea_orm(
+        has_many = "super::course::Entity",
+        from = "Column::Id",
+        to = "super::course::Column::StudioId"
+    )]
+    Course,
 }
 
 impl Related<super::school::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::School.def()
+    }
+}
+
+impl Related<super::time_slot::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::TimeSlot.def()
+    }
+}
+
+impl Related<super::course::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Course.def()
     }
 }
 
