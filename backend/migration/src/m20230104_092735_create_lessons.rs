@@ -1,6 +1,7 @@
-use crate::column;
-
-use super::iden::{Studios, TimeSlots};
+use super::{
+    column,
+    iden::{CourseSchedules, Lessons},
+};
 use sea_orm_migration::prelude::*;
 
 #[derive(DeriveMigrationName)]
@@ -12,20 +13,22 @@ impl MigrationTrait for Migration {
         manager
             .create_table(
                 Table::create()
-                    .table(TimeSlots::Table)
+                    .table(Lessons::Table)
                     .if_not_exists()
-                    .col(&mut column::define_id(TimeSlots::Id))
-                    .col(ColumnDef::new(TimeSlots::StudioId).integer().not_null())
-                    .col(ColumnDef::new(TimeSlots::DayOfWeek).integer().not_null())
-                    .col(ColumnDef::new(TimeSlots::StartTime).string().not_null())
-                    .col(ColumnDef::new(TimeSlots::EndTime).string().not_null())
+                    .col(&mut column::define_id(Lessons::Id))
+                    .col(
+                        ColumnDef::new(Lessons::CourseScheduleId)
+                            .integer()
+                            .not_null(),
+                    )
+                    .col(ColumnDef::new(Lessons::Date).date().not_null())
                     .col(&mut column::define_created_at())
                     .col(&mut column::define_updated_at())
                     .foreign_key(
-                        ForeignKeyCreateStatement::new()
-                            .name("FK_time_slot_studio")
-                            .from(TimeSlots::Table, TimeSlots::StudioId)
-                            .to(Studios::Table, Studios::Id)
+                        ForeignKey::create()
+                            .name("FK_lesson_course_schedule")
+                            .from(Lessons::Table, Lessons::CourseScheduleId)
+                            .to(CourseSchedules::Table, CourseSchedules::Id)
                             .on_delete(ForeignKeyAction::Cascade)
                             .on_update(ForeignKeyAction::Cascade),
                     )
@@ -36,7 +39,7 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table(TimeSlots::Table).to_owned())
+            .drop_table(Table::drop().table(Lessons::Table).to_owned())
             .await
     }
 }

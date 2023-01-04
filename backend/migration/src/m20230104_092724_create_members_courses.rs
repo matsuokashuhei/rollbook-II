@@ -1,6 +1,6 @@
-use super::{
+use crate::{
     column,
-    iden::{CourseSchedules, Courses, TimeSlots},
+    iden::{Courses, Members, MembersCourses},
 };
 use sea_orm_migration::prelude::*;
 
@@ -13,36 +13,36 @@ impl MigrationTrait for Migration {
         manager
             .create_table(
                 Table::create()
-                    .table(CourseSchedules::Table)
+                    .table(MembersCourses::Table)
                     .if_not_exists()
-                    .col(&mut column::define_id(CourseSchedules::Id))
+                    .col(&mut column::define_id(MembersCourses::Id))
                     .col(
-                        ColumnDef::new(CourseSchedules::CourseId)
+                        ColumnDef::new(MembersCourses::MemberId)
                             .integer()
                             .not_null(),
                     )
                     .col(
-                        ColumnDef::new(CourseSchedules::TimeSlotId)
+                        ColumnDef::new(MembersCourses::CourseId)
                             .integer()
                             .not_null(),
                     )
-                    .col(ColumnDef::new(CourseSchedules::StartDate).date().not_null())
-                    .col(ColumnDef::new(CourseSchedules::EndDate).date().not_null())
+                    .col(ColumnDef::new(MembersCourses::StartDate).date().not_null())
+                    .col(ColumnDef::new(MembersCourses::EndDate).date().not_null())
                     .col(&mut column::define_created_at())
                     .col(&mut column::define_updated_at())
                     .foreign_key(
                         ForeignKey::create()
-                            .name("FK_course_schedule_course")
-                            .from(CourseSchedules::Table, CourseSchedules::CourseId)
-                            .to(Courses::Table, Courses::Id)
+                            .name("FK_members_course_member")
+                            .from(MembersCourses::Table, MembersCourses::MemberId)
+                            .to(Members::Table, Members::Id)
                             .on_delete(ForeignKeyAction::Cascade)
                             .on_update(ForeignKeyAction::Cascade),
                     )
                     .foreign_key(
                         ForeignKey::create()
-                            .name("FK_course_schedule_time_slot")
-                            .from(CourseSchedules::Table, CourseSchedules::TimeSlotId)
-                            .to(TimeSlots::Table, TimeSlots::Id)
+                            .name("FK_members_course_course")
+                            .from(MembersCourses::Table, MembersCourses::CourseId)
+                            .to(Courses::Table, Courses::Id)
                             .on_delete(ForeignKeyAction::Cascade)
                             .on_update(ForeignKeyAction::Cascade),
                     )
@@ -53,7 +53,7 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table(CourseSchedules::Table).to_owned())
+            .drop_table(Table::drop().table(MembersCourses::Table).to_owned())
             .await
     }
 }

@@ -1,7 +1,7 @@
-use async_graphql::{ComplexObject, Context, Result, SimpleObject};
+use async_graphql::{ComplexObject, Context, Enum, Result, SimpleObject};
 use sea_orm::entity::prelude::*;
 
-#[derive(Debug, Clone, PartialEq, EnumIter, DeriveActiveEnum)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Enum, EnumIter, DeriveActiveEnum)]
 #[sea_orm(rs_type = "i32", db_type = "Integer")]
 pub enum DayOfWeek {
     Monday = 1,
@@ -20,8 +20,7 @@ pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
     pub studio_id: i32,
-    // pub day_of_week: DayOfWeek,
-    pub day_of_week: i32,
+    pub day_of_week: DayOfWeek,
     pub start_time: String,
     pub end_time: String,
     pub created_at: ChronoDateTime,

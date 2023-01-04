@@ -1,4 +1,7 @@
+use crate::column;
+
 // use sea_orm::Statement;
+use super::iden::Schools;
 use sea_orm_migration::prelude::*;
 
 #[derive(DeriveMigrationName)]
@@ -10,26 +13,10 @@ impl MigrationTrait for Migration {
         let stmt = sea_query::Table::create()
             .table(Schools::Table)
             .if_not_exists()
-            .col(
-                ColumnDef::new(Schools::Id)
-                    .integer()
-                    .not_null()
-                    .auto_increment()
-                    .primary_key(),
-            )
+            .col(&mut column::define_id(Schools::Id))
             .col(ColumnDef::new(Schools::Name).string().not_null())
-            .col(
-                ColumnDef::new(Schools::CreatedAt)
-                    .date_time()
-                    .not_null()
-                    .extra("DEFAULT CURRENT_TIMESTAMP".to_owned()),
-            )
-            .col(
-                ColumnDef::new(Schools::UpdatedAt)
-                    .date_time()
-                    .not_null()
-                    .extra("DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP".to_owned()),
-            )
+            .col(&mut column::define_created_at())
+            .col(&mut column::define_updated_at())
             .to_owned();
         manager.create_table(stmt).await.map(|_| ())
     }
@@ -40,13 +27,4 @@ impl MigrationTrait for Migration {
             .await
             .map(|_| ())
     }
-}
-
-#[derive(Iden)]
-pub enum Schools {
-    Table,
-    Id,
-    Name,
-    CreatedAt,
-    UpdatedAt,
 }

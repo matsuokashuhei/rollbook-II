@@ -1,3 +1,4 @@
+use crate::{column, iden::Instructors};
 use sea_orm_migration::prelude::*;
 
 #[derive(DeriveMigrationName)]
@@ -11,30 +12,12 @@ impl MigrationTrait for Migration {
                 Table::create()
                     .table(Instructors::Table)
                     .if_not_exists()
-                    .col(
-                        ColumnDef::new(Instructors::Id)
-                            .integer()
-                            .not_null()
-                            .auto_increment()
-                            .primary_key(),
-                    )
+                    .col(&mut column::define_id(Instructors::Id))
                     .col(ColumnDef::new(Instructors::Name).string().not_null())
                     .col(ColumnDef::new(Instructors::Email).string().not_null())
                     .col(ColumnDef::new(Instructors::PhoneNumber).string().not_null())
-                    .col(
-                        ColumnDef::new(Instructors::CreatedAt)
-                            .date_time()
-                            .not_null()
-                            .extra("DEFAULT CURRENT_TIMESTAMP".to_owned()),
-                    )
-                    .col(
-                        ColumnDef::new(Instructors::UpdatedAt)
-                            .date_time()
-                            .not_null()
-                            .extra(
-                                "DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP".to_owned(),
-                            ),
-                    )
+                    .col(&mut column::define_created_at())
+                    .col(&mut column::define_updated_at())
                     .to_owned(),
             )
             .await
@@ -45,16 +28,4 @@ impl MigrationTrait for Migration {
             .drop_table(Table::drop().table(Instructors::Table).to_owned())
             .await
     }
-}
-
-/// Learn more at https://docs.rs/sea-query#iden
-#[derive(Iden)]
-pub enum Instructors {
-    Table,
-    Id,
-    Name,
-    Email,
-    PhoneNumber,
-    CreatedAt,
-    UpdatedAt,
 }
