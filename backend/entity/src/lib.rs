@@ -1,6 +1,8 @@
 pub mod course;
 pub mod course_schedule;
 pub mod instructor;
+pub mod member;
+pub mod members_course;
 pub mod school;
 pub mod studio;
 pub mod time_slot;

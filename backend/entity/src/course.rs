@@ -60,6 +60,10 @@ impl Model {
             .await?
             .unwrap())
     }
+    async fn members(&self, ctx: &Context<'_>) -> Result<Vec<crate::member::Model>> {
+        let conn = ctx.data::<DatabaseConnection>().unwrap();
+        Ok(self.find_related(super::member::Entity).all(conn).await?)
+    }
 }
 
 #[derive(InputObject)]
@@ -132,6 +136,15 @@ impl Related<super::time_slot::Entity> for Entity {
     }
     fn via() -> Option<RelationDef> {
         Some(super::course_schedule::Relation::Course.def().rev())
+    }
+}
+
+impl Related<crate::member::Entity> for Entity {
+    fn to() -> RelationDef {
+        crate::members_course::Relation::Member.def()
+    }
+    fn via() -> Option<RelationDef> {
+        Some(crate::members_course::Relation::Course.def().rev())
     }
 }
 
