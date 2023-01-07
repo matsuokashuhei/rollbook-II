@@ -40,6 +40,12 @@ pub enum Relation {
         to = "crate::members_course::Column::MemberId"
     )]
     MembersCourse,
+    #[sea_orm(
+        has_many = "crate::attendance::Entity",
+        from = "Column::Id",
+        to = "crate::attendance::Column::MemberId"
+    )]
+    Attendance,
 }
 
 impl Related<crate::members_course::Entity> for Entity {
@@ -54,6 +60,12 @@ impl Related<crate::course::Entity> for Entity {
     }
     fn via() -> Option<RelationDef> {
         Some(crate::members_course::Relation::Member.def().rev())
+    }
+}
+
+impl Related<crate::attendance::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Attendance.def()
     }
 }
 
