@@ -1,3 +1,4 @@
+use crate::{course, school, time_slot};
 use async_graphql::{ComplexObject, Context, InputObject, Result, SimpleObject};
 use sea_orm::{entity::prelude::*, ActiveValue};
 
@@ -15,24 +16,17 @@ pub struct Model {
 
 #[ComplexObject]
 impl Model {
-    async fn school(&self, ctx: &Context<'_>) -> Result<super::school::Model> {
+    async fn school(&self, ctx: &Context<'_>) -> Result<school::Model> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
-        Ok(self
-            .find_related(super::school::Entity)
-            .one(conn)
-            .await?
-            .unwrap())
+        Ok(self.find_related(school::Entity).one(conn).await?.unwrap())
     }
-    async fn time_slots(&self, ctx: &Context<'_>) -> Result<Vec<super::time_slot::Model>> {
+    async fn time_slots(&self, ctx: &Context<'_>) -> Result<Vec<time_slot::Model>> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
-        Ok(self
-            .find_related(super::time_slot::Entity)
-            .all(conn)
-            .await?)
+        Ok(self.find_related(time_slot::Entity).all(conn).await?)
     }
-    async fn courses(&self, ctx: &Context<'_>) -> Result<Vec<super::course::Model>> {
+    async fn courses(&self, ctx: &Context<'_>) -> Result<Vec<course::Model>> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
-        Ok(self.find_related(super::course::Entity).all(conn).await?)
+        Ok(self.find_related(course::Entity).all(conn).await?)
     }
 }
 
@@ -40,6 +34,12 @@ impl Model {
 pub struct CreateStudioInput {
     pub school_id: i32,
     pub name: String,
+}
+
+impl CreateStudioInput {
+    pub fn into_active_model(self) -> ActiveModel {
+        ActiveModel::from(self)
+    }
 }
 
 impl From<CreateStudioInput> for ActiveModel {
@@ -55,38 +55,38 @@ impl From<CreateStudioInput> for ActiveModel {
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(
-        belongs_to = "super::school::Entity",
+        belongs_to = "school::Entity",
         from = "Column::SchoolId",
-        to = "super::school::Column::Id"
+        to = "school::Column::Id"
     )]
     School,
     #[sea_orm(
-        has_many = "super::time_slot::Entity",
+        has_many = "time_slot::Entity",
         from = "Column::Id",
-        to = "super::time_slot::Column::StudioId"
+        to = "time_slot::Column::StudioId"
     )]
     TimeSlot,
     #[sea_orm(
-        has_many = "super::course::Entity",
+        has_many = "course::Entity",
         from = "Column::Id",
-        to = "super::course::Column::StudioId"
+        to = "course::Column::StudioId"
     )]
     Course,
 }
 
-impl Related<super::school::Entity> for Entity {
+impl Related<school::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::School.def()
     }
 }
 
-impl Related<super::time_slot::Entity> for Entity {
+impl Related<time_slot::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::TimeSlot.def()
     }
 }
 
-impl Related<super::course::Entity> for Entity {
+impl Related<course::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Course.def()
     }

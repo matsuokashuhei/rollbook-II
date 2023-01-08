@@ -1,3 +1,4 @@
+use crate::{course, lesson, time_slot};
 use async_graphql::{ComplexObject, Context, Result, SimpleObject};
 use sea_orm::entity::prelude::*;
 
@@ -17,18 +18,14 @@ pub struct Model {
 
 #[ComplexObject]
 impl Model {
-    async fn course(&self, ctx: &Context<'_>) -> Result<super::course::Model> {
+    async fn course(&self, ctx: &Context<'_>) -> Result<course::Model> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
-        Ok(self
-            .find_related(super::course::Entity)
-            .one(conn)
-            .await?
-            .unwrap())
+        Ok(self.find_related(course::Entity).one(conn).await?.unwrap())
     }
-    async fn time_slot(&self, ctx: &Context<'_>) -> Result<super::time_slot::Model> {
+    async fn time_slot(&self, ctx: &Context<'_>) -> Result<time_slot::Model> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
         Ok(self
-            .find_related(super::time_slot::Entity)
+            .find_related(time_slot::Entity)
             .one(conn)
             .await?
             .unwrap())
@@ -38,28 +35,40 @@ impl Model {
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(
-        belongs_to = "super::course::Entity",
+        belongs_to = "course::Entity",
         from = "Column::CourseId",
-        to = "super::course::Column::Id"
+        to = "course::Column::Id"
     )]
     Course,
     #[sea_orm(
-        belongs_to = "super::time_slot::Entity",
+        belongs_to = "time_slot::Entity",
         from = "Column::TimeSlotId",
-        to = "super::time_slot::Column::Id"
+        to = "time_slot::Column::Id"
     )]
     TimeSlot,
+    #[sea_orm(
+        has_many = "lesson::Entity",
+        from = "Column::Id",
+        to = "lesson::Column::CourseScheduleId"
+    )]
+    Lesson,
 }
 
-impl Related<super::course::Entity> for Entity {
+impl Related<course::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Course.def()
     }
 }
 
-impl Related<super::time_slot::Entity> for Entity {
+impl Related<time_slot::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::TimeSlot.def()
+    }
+}
+
+impl Related<lesson::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Lesson.def()
     }
 }
 

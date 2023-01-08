@@ -1,4 +1,6 @@
-use crate::{column, iden::Instructors};
+use crate::column;
+
+use super::iden::Members;
 use sea_orm_migration::prelude::*;
 
 #[derive(DeriveMigrationName)]
@@ -10,19 +12,19 @@ impl MigrationTrait for Migration {
         manager
             .create_table(
                 Table::create()
-                    .table(Instructors::Table)
+                    .table(Members::Table)
                     .if_not_exists()
-                    .col(&mut column::define_id(Instructors::Id))
-                    .col(ColumnDef::new(Instructors::Name).string().not_null())
-                    .col(ColumnDef::new(Instructors::Email).string().not_null())
-                    .col(ColumnDef::new(Instructors::PhoneNumber).string().not_null())
+                    .col(&mut column::define_id(Members::Id))
+                    .col(ColumnDef::new(Members::Number).integer().not_null())
+                    .col(ColumnDef::new(Members::Name).string().not_null())
+                    .col(ColumnDef::new(Members::Kana).string().not_null())
                     .col(&mut column::define_created_at())
                     .col(&mut column::define_updated_at())
                     .index(
                         Index::create()
                             .unique()
-                            .name("IDX_name_in_instructors")
-                            .col(Instructors::Name),
+                            .name("IDX_number_in_members")
+                            .col(Members::Number),
                     )
                     .to_owned(),
             )
@@ -31,7 +33,7 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table(Instructors::Table).to_owned())
+            .drop_table(Table::drop().table(Members::Table).to_owned())
             .await
     }
 }

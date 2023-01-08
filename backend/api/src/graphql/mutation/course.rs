@@ -13,7 +13,7 @@ impl CourseMutation {
         input: course::CreateCourseInput,
     ) -> Result<course::Model> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
-        let result = course::Entity::insert(course::ActiveModel::from(input))
+        let result = course::Entity::insert(input.into_active_model())
             .exec(conn)
             .await?;
         let course = course::Entity::find_by_id(result.last_insert_id)

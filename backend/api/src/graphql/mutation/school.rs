@@ -13,7 +13,7 @@ impl SchoolMutation {
         input: school::CreateSchoolInput,
     ) -> Result<school::Model> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
-        let result = school::Entity::insert(school::ActiveModel::from(input))
+        let result = school::Entity::insert(input.into_active_model())
             .exec(conn)
             .await?;
         let school = school::Entity::find_by_id(result.last_insert_id)
