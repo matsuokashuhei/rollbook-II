@@ -1,3 +1,4 @@
+use crate::course;
 use async_graphql::{ComplexObject, Context, InputObject, Result, SimpleObject};
 // use sea_orm::{
 //     entity::prelude::DeriveEntityModel, ActiveModelBehavior, DerivePrimaryKey, DeriveRelation,
@@ -20,9 +21,9 @@ pub struct Model {
 
 #[ComplexObject]
 impl Model {
-    async fn courses(&self, ctx: &Context<'_>) -> Result<Vec<super::course::Model>> {
+    async fn courses(&self, ctx: &Context<'_>) -> Result<Vec<course::Model>> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
-        Ok(self.find_related(super::course::Entity).all(conn).await?)
+        Ok(self.find_related(course::Entity).all(conn).await?)
     }
 }
 
@@ -31,6 +32,12 @@ pub struct CreateInstructorInput {
     pub name: String,
     pub email: String,
     pub phone_number: String,
+}
+
+impl CreateInstructorInput {
+    pub fn into_active_model(self) -> ActiveModel {
+        ActiveModel::from(self)
+    }
 }
 
 impl From<CreateInstructorInput> for ActiveModel {
@@ -47,14 +54,14 @@ impl From<CreateInstructorInput> for ActiveModel {
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(
-        has_many = "super::course::Entity",
+        has_many = "course::Entity",
         from = "Column::Id",
-        to = "super::course::Column::InstructorId"
+        to = "course::Column::InstructorId"
     )]
     Course,
 }
 
-impl Related<super::course::Entity> for Entity {
+impl Related<course::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Course.def()
     }

@@ -13,7 +13,7 @@ impl InstructorMutation {
         input: instructor::CreateInstructorInput,
     ) -> Result<instructor::Model> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
-        let result = instructor::Entity::insert(instructor::ActiveModel::from(input))
+        let result = instructor::Entity::insert(input.into_active_model())
             .exec(conn)
             .await?;
         let instructor = instructor::Entity::find_by_id(result.last_insert_id)

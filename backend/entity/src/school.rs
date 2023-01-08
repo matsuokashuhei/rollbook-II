@@ -1,3 +1,4 @@
+use crate::studio;
 use async_graphql::{ComplexObject, Context, InputObject, Result, SimpleObject};
 use sea_orm::{entity::prelude::*, ActiveValue};
 
@@ -14,15 +15,21 @@ pub struct Model {
 
 #[ComplexObject]
 impl Model {
-    async fn studios(&self, ctx: &Context<'_>) -> Result<Vec<super::studio::Model>> {
+    async fn studios(&self, ctx: &Context<'_>) -> Result<Vec<studio::Model>> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
-        Ok(self.find_related(super::studio::Entity).all(conn).await?)
+        Ok(self.find_related(studio::Entity).all(conn).await?)
     }
 }
 
 #[derive(InputObject)]
 pub struct CreateSchoolInput {
     pub name: String,
+}
+
+impl CreateSchoolInput {
+    pub fn into_active_model(self) -> ActiveModel {
+        ActiveModel::from(self)
+    }
 }
 
 impl From<CreateSchoolInput> for ActiveModel {
@@ -37,14 +44,14 @@ impl From<CreateSchoolInput> for ActiveModel {
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(
-        has_many = "super::studio::Entity",
+        has_many = "studio::Entity",
         from = "Column::Id",
-        to = "super::studio::Column::SchoolId"
+        to = "studio::Column::SchoolId"
     )]
     Studio,
 }
 
-impl Related<super::studio::Entity> for Entity {
+impl Related<studio::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Studio.def()
     }

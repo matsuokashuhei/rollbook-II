@@ -1,6 +1,8 @@
+pub mod attendance;
 pub mod course;
 pub mod course_schedule;
 pub mod instructor;
+pub mod lesson;
 pub mod member;
 pub mod members_course;
 pub mod school;

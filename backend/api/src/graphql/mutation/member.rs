@@ -13,7 +13,7 @@ impl MemberMutation {
         input: member::CreateMemberInput,
     ) -> Result<member::Model> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
-        let result = member::Entity::insert(member::ActiveModel::from(input))
+        let result = member::Entity::insert(input.into_active_model())
             .exec(conn)
             .await?;
         let member = member::Entity::find_by_id(result.last_insert_id)

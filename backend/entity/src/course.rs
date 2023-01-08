@@ -1,3 +1,4 @@
+use crate::{course_schedule, instructor, lesson, member, members_course, studio, time_slot};
 use async_graphql::{ComplexObject, Context, InputObject, Result, SimpleObject};
 use sea_orm::{entity::prelude::*, ActiveValue};
 
@@ -19,50 +20,44 @@ pub struct Model {
 
 #[ComplexObject]
 impl Model {
-    async fn instructor(&self, ctx: &Context<'_>) -> Result<super::instructor::Model> {
+    async fn instructor(&self, ctx: &Context<'_>) -> Result<instructor::Model> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
         Ok(self
-            .find_related(super::instructor::Entity)
+            .find_related(instructor::Entity)
             .one(conn)
             .await?
             .unwrap())
     }
-    async fn studio(&self, ctx: &Context<'_>) -> Result<super::studio::Model> {
+    async fn studio(&self, ctx: &Context<'_>) -> Result<studio::Model> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
-        Ok(self
-            .find_related(super::studio::Entity)
-            .one(conn)
-            .await?
-            .unwrap())
+        Ok(self.find_related(studio::Entity).one(conn).await?.unwrap())
     }
-    async fn course_schedules(
-        &self,
-        ctx: &Context<'_>,
-    ) -> Result<Vec<super::course_schedule::Model>> {
+    async fn course_schedules(&self, ctx: &Context<'_>) -> Result<Vec<course_schedule::Model>> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
-        Ok(self
-            .find_related(super::course_schedule::Entity)
-            .all(conn)
-            .await?)
+        Ok(self.find_related(course_schedule::Entity).all(conn).await?)
     }
-    // async fn time_slots(&self, ctx: &Context<'_>) -> Result<Vec<super::time_slot::Model>> {
+    // async fn time_slots(&self, ctx: &Context<'_>) -> Result<Vec<time_slot::Model>> {
     //     let conn = ctx.data::<DatabaseConnection>().unwrap();
     //     Ok(self
-    //         .find_related(super::time_slot::Entity)
+    //         .find_related(time_slot::Entity)
     //         .all(conn)
     //         .await?)
     // }
-    async fn time_slot(&self, ctx: &Context<'_>) -> Result<super::time_slot::Model> {
+    async fn time_slot(&self, ctx: &Context<'_>) -> Result<time_slot::Model> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
         Ok(self
-            .find_related(super::time_slot::Entity)
+            .find_related(time_slot::Entity)
             .one(conn)
             .await?
             .unwrap())
     }
-    async fn members(&self, ctx: &Context<'_>) -> Result<Vec<crate::member::Model>> {
+    async fn lessons(&self, ctx: &Context<'_>) -> Result<Vec<lesson::Model>> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
-        Ok(self.find_related(super::member::Entity).all(conn).await?)
+        Ok(self.find_related(lesson::Entity).all(conn).await?)
+    }
+    async fn members(&self, ctx: &Context<'_>) -> Result<Vec<member::Model>> {
+        let conn = ctx.data::<DatabaseConnection>().unwrap();
+        Ok(self.find_related(member::Entity).all(conn).await?)
     }
 }
 
@@ -74,6 +69,12 @@ pub struct CreateCourseInput {
     pub instructor_id: i32,
     pub start_date: Date,
     pub end_date: Date,
+}
+
+impl CreateCourseInput {
+    pub fn into_active_model(self) -> ActiveModel {
+        ActiveModel::from(self)
+    }
 }
 
 impl From<CreateCourseInput> for ActiveModel {
@@ -93,58 +94,67 @@ impl From<CreateCourseInput> for ActiveModel {
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(
-        belongs_to = "super::instructor::Entity",
+        belongs_to = "instructor::Entity",
         from = "Column::InstructorId",
-        to = "super::instructor::Column::Id"
+        to = "instructor::Column::Id"
     )]
     Instructor,
     #[sea_orm(
-        belongs_to = "super::studio::Entity",
+        belongs_to = "studio::Entity",
         from = "Column::StudioId",
-        to = "super::studio::Column::Id"
+        to = "studio::Column::Id"
     )]
     Studio,
     #[sea_orm(
-        has_many = "super::course_schedule::Entity",
+        has_many = "course_schedule::Entity",
         from = "Column::Id",
-        to = "super::course_schedule::Column::CourseId"
+        to = "course_schedule::Column::CourseId"
     )]
     CourseSchedule,
 }
 
-impl Related<super::instructor::Entity> for Entity {
+impl Related<instructor::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Instructor.def()
     }
 }
 
-impl Related<super::studio::Entity> for Entity {
+impl Related<studio::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Studio.def()
     }
 }
 
-impl Related<super::course_schedule::Entity> for Entity {
+impl Related<course_schedule::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::CourseSchedule.def()
     }
 }
 
-impl Related<super::time_slot::Entity> for Entity {
+impl Related<time_slot::Entity> for Entity {
     fn to() -> RelationDef {
-        super::course_schedule::Relation::TimeSlot.def()
+        course_schedule::Relation::TimeSlot.def()
     }
     fn via() -> Option<RelationDef> {
-        Some(super::course_schedule::Relation::Course.def().rev())
+        Some(course_schedule::Relation::Course.def().rev())
     }
 }
 
-impl Related<crate::member::Entity> for Entity {
+impl Related<member::Entity> for Entity {
     fn to() -> RelationDef {
-        crate::members_course::Relation::Member.def()
+        members_course::Relation::Member.def()
     }
     fn via() -> Option<RelationDef> {
-        Some(crate::members_course::Relation::Course.def().rev())
+        Some(members_course::Relation::Course.def().rev())
+    }
+}
+
+impl Related<lesson::Entity> for Entity {
+    fn to() -> RelationDef {
+        course_schedule::Relation::Lesson.def()
+    }
+    fn via() -> Option<RelationDef> {
+        Some(course_schedule::Relation::Course.def().rev())
     }
 }
 

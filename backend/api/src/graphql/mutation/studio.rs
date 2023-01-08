@@ -13,7 +13,7 @@ impl StudioMutation {
         input: studio::CreateStudioInput,
     ) -> Result<studio::Model> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
-        let result = studio::Entity::insert(studio::ActiveModel::from(input))
+        let result = studio::Entity::insert(input.into_active_model())
             .exec(conn)
             .await?;
         let studio = studio::Entity::find_by_id(result.last_insert_id)

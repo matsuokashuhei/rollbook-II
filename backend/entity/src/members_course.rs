@@ -1,3 +1,4 @@
+use crate::{course, member};
 use async_graphql::{ComplexObject, Context, InputObject, Result, SimpleObject};
 use sea_orm::{entity::prelude::*, ActiveValue};
 
@@ -17,21 +18,13 @@ pub struct Model {
 
 #[ComplexObject]
 impl Model {
-    async fn member(&self, ctx: &Context<'_>) -> Result<crate::member::Model> {
+    async fn member(&self, ctx: &Context<'_>) -> Result<member::Model> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
-        Ok(self
-            .find_related(crate::member::Entity)
-            .one(conn)
-            .await?
-            .unwrap())
+        Ok(self.find_related(member::Entity).one(conn).await?.unwrap())
     }
-    async fn course(&self, ctx: &Context<'_>) -> Result<crate::course::Model> {
+    async fn course(&self, ctx: &Context<'_>) -> Result<course::Model> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
-        Ok(self
-            .find_related(crate::course::Entity)
-            .one(conn)
-            .await?
-            .unwrap())
+        Ok(self.find_related(course::Entity).one(conn).await?.unwrap())
     }
 }
 #[derive(InputObject)]
@@ -63,26 +56,26 @@ impl From<CreateMembersCourseInput> for ActiveModel {
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(
-        belongs_to = "crate::member::Entity",
+        belongs_to = "member::Entity",
         from = "Column::MemberId",
-        to = "crate::member::Column::Id"
+        to = "member::Column::Id"
     )]
     Member,
     #[sea_orm(
-        belongs_to = "crate::course::Entity",
+        belongs_to = "course::Entity",
         from = "Column::CourseId",
-        to = "crate::course::Column::Id"
+        to = "course::Column::Id"
     )]
     Course,
 }
 
-impl Related<crate::member::Entity> for Entity {
+impl Related<member::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Member.def()
     }
 }
 
-impl Related<crate::course::Entity> for Entity {
+impl Related<course::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Course.def()
     }
