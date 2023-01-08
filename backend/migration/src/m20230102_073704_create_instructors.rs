@@ -18,6 +18,12 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Instructors::PhoneNumber).string().not_null())
                     .col(&mut column::define_created_at())
                     .col(&mut column::define_updated_at())
+                    .index(
+                        Index::create()
+                            .unique()
+                            .name("IDX_name_in_instructors")
+                            .col(Instructors::Name),
+                    )
                     .to_owned(),
             )
             .await
