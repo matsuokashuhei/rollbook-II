@@ -1,6 +1,6 @@
-use crate::{attendance, course_schedule, member};
-use async_graphql::{ComplexObject, Context, Result, SimpleObject};
-use sea_orm::entity::prelude::*;
+use crate::{attendance, course_schedule, member, time_slot};
+use async_graphql::{ComplexObject, Context, InputObject, Result, SimpleObject};
+use sea_orm::{entity::prelude::*, ActiveValue};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, SimpleObject)]
 #[sea_orm(table_name = "lessons")]
@@ -22,9 +22,39 @@ impl Model {
             .await?
             .unwrap())
     }
+    async fn time_slot(&self, ctx: &Context<'_>) -> Result<time_slot::Model> {
+        let conn = ctx.data::<DatabaseConnection>().unwrap();
+        Ok(self
+            .find_related(time_slot::Entity)
+            .one(conn)
+            .await?
+            .unwrap())
+    }
     async fn members(&self, ctx: &Context<'_>) -> Result<Vec<member::Model>> {
         let conn = ctx.data::<DatabaseConnection>().unwrap();
         Ok(self.find_related(member::Entity).all(conn).await?)
+    }
+}
+
+#[derive(InputObject)]
+pub struct CreateLessonInput {
+    pub course_schedule_id: i32,
+    pub date: Date,
+}
+
+impl CreateLessonInput {
+    pub fn into_active_model(self) -> ActiveModel {
+        ActiveModel::from(self)
+    }
+}
+
+impl From<CreateLessonInput> for ActiveModel {
+    fn from(input: CreateLessonInput) -> Self {
+        ActiveModel {
+            course_schedule_id: ActiveValue::Set(input.course_schedule_id),
+            date: ActiveValue::Set(input.date),
+            ..Default::default()
+        }
     }
 }
 
@@ -47,6 +77,15 @@ pub enum Relation {
 impl Related<course_schedule::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::CouseSchedule.def()
+    }
+}
+
+impl Related<time_slot::Entity> for Entity {
+    fn to() -> RelationDef {
+        course_schedule::Relation::TimeSlot.def()
+    }
+    fn via() -> Option<RelationDef> {
+        Some(course_schedule::Relation::Lesson.def().rev())
     }
 }
 
