@@ -7,23 +7,20 @@ use axum::routing::get;
 use axum::Extension;
 use axum::Router;
 use entity::async_graphql::http::GraphiQLSource;
-use graphql::schema::AppSchema;
 use graphql::schema::build_schema;
+use graphql::schema::AppSchema;
 use sea_orm::Database;
 use std::net::SocketAddr;
 use tower::ServiceBuilder;
 
-async fn graphql_handler(
-    schema: Extension<AppSchema>,
-    req: GraphQLRequest
-) -> GraphQLResponse {
+async fn graphql_handler(schema: Extension<AppSchema>, req: GraphQLRequest) -> GraphQLResponse {
     schema.execute(req.into_inner()).await.into()
 }
 
 async fn graphql_playground() -> impl IntoResponse {
     Html(
         GraphiQLSource::build()
-            .endpoint("http://localhost:3000")
+            .endpoint("http://localhost:4000")
             .finish(),
     )
 }

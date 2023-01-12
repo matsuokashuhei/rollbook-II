@@ -10,8 +10,11 @@
     "customizations": {
         "vscode": {
             "extensions": [
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
                 "GitHub.copilot-nightly",
                 "GitHub.vscode-pull-request-github",
+                "GraphQL.vscode-graphql",
                 "Gruntfuggly.todo-tree"
             ]
         }
