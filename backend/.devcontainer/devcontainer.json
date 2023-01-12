@@ -4,7 +4,8 @@
     "../../compose.yml"
   ],
   "service": "backend",
-  "shutdownAction": "stopCompose",
+  "overrideCommand": true,
+  "shutdownAction": "none",
   "workspaceFolder": "/app/backend",
   // "build": {
   //     "dockerfile": "Dockerfile",
@@ -14,6 +15,10 @@
   //     "configureZshAsDefaultShell": true
   //   }
   // },
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {},
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
   "customizations": {
     "vscode": {
       "extensions": [

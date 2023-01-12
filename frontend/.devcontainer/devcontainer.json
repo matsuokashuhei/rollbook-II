@@ -1,8 +1,12 @@
 {
-    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
-    "features": {
-        "ghcr.io/devcontainers/features/node:1": {}
-    },
+    "name": "frontend",
+    "dockerComposeFile": [
+        "../../compose.yml"
+    ],
+    "service": "frontend",
+    "overrideCommand": true,
+    "workspaceFolder": "/app/frontend",
+    "shutdownAction": "none",
     "customizations": {
         "vscode": {
             "extensions": [
@@ -11,5 +15,9 @@
                 "Gruntfuggly.todo-tree"
             ]
         }
+    },
+    "features": {
+        "ghcr.io/devcontainers/features/git:1": {},
+        "ghcr.io/devcontainers/features/github-cli:1": {}
     }
 }
