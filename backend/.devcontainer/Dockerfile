@@ -3,7 +3,7 @@ FROM rust:1.66-slim-bullseye
 
 RUN <<EOT
 apt update -y
-apt install -y pkg-config libssl-dev
+apt install -y git pkg-config libssl-dev
 rustup component add rustfmt clippy
 cargo install cargo-watch sea-orm-cli
 EOT
