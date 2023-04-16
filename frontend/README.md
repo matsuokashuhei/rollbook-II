@@ -1,0 +1,3 @@
+- [Introduction to Apollo Client - Apollo GraphQL Docs](https://www.apollographql.com/docs/react/)
+- [Vite | Next Generation Frontend Tooling](https://vitejs.dev/)
+- [GraphQL Code Generator](https://the-guild.dev/graphql/codegen)

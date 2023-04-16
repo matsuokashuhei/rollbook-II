@@ -1,18 +1,32 @@
 services:
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/.devcontainer/Dockerfile
+    # command: npm run start
+    command: sleep infinity
+    depends_on:
+      - backend
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/app:cached
   backend:
     build:
       context: .
-      dockerfile: backend/.devcontainer/Dockerfile
+      dockerfile: backend/Dockerfile
+      target: dev
+    # command: npm run start
+    # command: cargo run
     command: sleep infinity
     depends_on:
       - mysql
     env_file:
       - .env
     ports:
-      - 3000:3000
-      # - 8000:8000
+      - 4000:3000
     volumes:
-      - .:/app
+      - .:/app:cached
   mysql:
     image: mysql:8
     env_file:

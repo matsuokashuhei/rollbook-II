@@ -1,0 +1,31 @@
+{
+    "name": "frontend",
+    "dockerComposeFile": [
+        "../../compose.yml"
+    ],
+    "service": "frontend",
+    "overrideCommand": true,
+    "workspaceFolder": "/app/frontend",
+    "shutdownAction": "none",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "GitHub.copilot-nightly",
+                "GitHub.vscode-pull-request-github",
+                "GraphQL.vscode-graphql",
+                "Gruntfuggly.todo-tree"
+            ],
+            "settings": {
+                "editor.formatOnSave": true,
+                "editor.defaultFormatter": "esbenp.prettier-vscode",
+                "remote.autoForwardPorts": false
+            }
+        }
+    },
+    "features": {
+        "ghcr.io/devcontainers/features/git:1": {},
+        "ghcr.io/devcontainers/features/github-cli:1": {}
+    }
+}
