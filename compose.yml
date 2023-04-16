@@ -14,7 +14,8 @@ services:
   backend:
     build:
       context: .
-      dockerfile: backend/.devcontainer/Dockerfile
+      dockerfile: backend/Dockerfile
+      target: dev
     # command: npm run start
     # command: cargo run
     command: sleep infinity
