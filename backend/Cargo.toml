@@ -5,14 +5,31 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[workspace]
-members = [".", "api", "entity", "migration"]
+# [workspace]
+# members = [".", "api", "entity", "migration"]
+
+# [dependencies]
+# api = { path = "api" }
+# entity = { path = "entity" }
+# migration = { path = "migration" }
+
+# [dependencies.sea-orm]
+# version = "^0"
+# features = ["runtime-tokio-native-tls", "sqlx-mysql"]
 
 [dependencies]
-api = { path = "api" }
-entity = { path = "entity" }
-migration = { path = "migration" }
-
-[dependencies.sea-orm]
-version = "^0"
-features = ["runtime-tokio-native-tls", "sqlx-mysql"]
+anyhow = { version = "*" }
+async-graphql = { version = "*" }
+async-graphql-axum = "*"
+axum = { version = "*" }
+chrono = "*"
+tokio = { version = "*", features = ["full"] }
+tower = { version = "*" }
+tower-http = { version = "*", features = ["cors"] }
+sea-orm = { version = "*", features = [
+    "sqlx-mysql",
+    "runtime-tokio-native-tls",
+    "macros",
+    "debug-print",
+    "with-chrono",
+] }
