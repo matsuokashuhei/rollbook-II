@@ -1,9 +1,8 @@
-use async_graphql::{EmptyMutation, EmptySubscription, Schema};
+use super::{mutations::Mutation, queries::Query};
+use async_graphql::{EmptySubscription, Schema};
 
-use super::queries::Query;
-
-pub type AppSchema = Schema<Query, EmptyMutation, EmptySubscription>;
+pub type AppSchema = Schema<Query, Mutation, EmptySubscription>;
 
 pub async fn build_schema() -> AppSchema {
-    Schema::build(Query::default(), EmptyMutation, EmptySubscription).finish()
+    Schema::build(Query::default(), Mutation::default(), EmptySubscription).finish()
 }

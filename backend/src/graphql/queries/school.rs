@@ -1,7 +1,7 @@
 use anyhow::Result;
 use async_graphql::{Context, Object};
 
-use crate::graphql::types::school::School;
+use crate::graphql::objects::school::School;
 
 #[derive(Default)]
 pub struct SchoolQuery;

@@ -8,3 +8,14 @@ pub struct School {
     // pub created_at: DateTime<Utc>,
     // pub updated_at: DateTime<Utc>,
 }
+
+#[derive(SimpleObject)]
+pub struct CreateSchoolPayload {
+    pub school: School,
+}
+
+impl CreateSchoolPayload {
+    pub fn new(school: School) -> Self {
+        Self { school }
+    }
+}
