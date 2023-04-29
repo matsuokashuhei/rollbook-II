@@ -1,7 +1,11 @@
-use crate::application::usecases::school::SchoolUsecase;
+use crate::application::models::school::CreateSchool;
+use crate::application::usecases::school::Usecase;
 use crate::graphql::objects::school::School;
 use crate::graphql::{inputs::school::CreateSchoolInput, objects::school::CreateSchoolPayload};
-use async_graphql::{Context, Object, Result};
+use crate::infrastructure::repositories::school::SchoolRepository;
+use anyhow::Result;
+use async_graphql::{Context, Object};
+use sea_orm::DatabaseConnection;
 
 #[derive(Default)]
 pub struct SchoolMutation;
@@ -13,21 +17,10 @@ impl SchoolMutation {
         ctx: &Context<'_>,
         input: CreateSchoolInput,
     ) -> Result<CreateSchoolPayload> {
-        // // let conn = ctx.data::<DatabaseConnection>().unwrap();
-        // let result = school::Entity::insert(input.into_active_model())
-        //     .exec(conn)
-        //     .await?;
-        // let school = school::Entity::find_by_id(result.last_insert_id)
-        //     .one(conn)
-        //     .await?
-        //     .unwrap();
-        // Ok(school)
-        let school = School {
-            id: 1,
-            name: "Tachikawa".to_owned(),
-        };
-        let usecase = SchoolUsecase { repository: None };
-        // let usecase = crate::usecase::school::CreateSchoolUsecase::new();
-        Ok(CreateSchoolPayload::new(school))
+        let conn = ctx.data::<DatabaseConnection>().unwrap();
+        let repository = SchoolRepository { conn: conn };
+        let usecase = Usecase::new(Box::new(repository));
+        let school = usecase.create(CreateSchool::from(input)).await?;
+        Ok(CreateSchoolPayload::new(School::from(school)))
     }
 }

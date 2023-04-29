@@ -1,5 +1,8 @@
-mod entity;
+mod application;
+mod domain;
+// mod entity;
 mod graphql;
+mod infrastructure;
 
 use anyhow::Result;
 use async_graphql::http::GraphiQLSource;
