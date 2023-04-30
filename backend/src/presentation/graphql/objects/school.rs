@@ -1,5 +1,4 @@
 use async_graphql::SimpleObject;
-// use chrono::{DateTime, Utc};
 
 #[derive(SimpleObject, Clone)]
 pub struct School {

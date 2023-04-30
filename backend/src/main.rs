@@ -1,8 +1,7 @@
 mod application;
 mod domain;
-// mod entity;
-mod graphql;
 mod infrastructure;
+mod presentation;
 
 use anyhow::Result;
 use async_graphql::http::GraphiQLSource;
@@ -12,7 +11,7 @@ use axum::{
     routing::get,
     Extension, Router,
 };
-use graphql::schema::{build_schema, AppSchema};
+use presentation::graphql::schema::{build_schema, AppSchema};
 use std::net::SocketAddr;
 use tower_http::cors::{Any, CorsLayer};
 

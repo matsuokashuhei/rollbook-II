@@ -1,6 +1,6 @@
 use crate::application::usecases::school::Usecase;
-use crate::graphql::objects::school::School;
 use crate::infrastructure::repositories::school::SchoolRepository;
+use crate::presentation::graphql::objects::school::School;
 use anyhow::Result;
 use async_graphql::{Context, Object};
 use sea_orm::DatabaseConnection;

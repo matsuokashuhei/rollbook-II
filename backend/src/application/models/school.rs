@@ -1,4 +1,4 @@
-use crate::graphql::inputs::school::CreateSchoolInput;
+use crate::presentation::graphql::inputs::school::CreateSchoolInput;
 
 #[derive(Clone)]
 pub struct School {
